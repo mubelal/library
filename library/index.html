@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Könyvtárkezelő Rendszer</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #f5f7fa;
+            --accent-color: #3498db;
+            --text-color: #333;
+            --border-color: #ddd;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background-color: var(--light-color);
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: var(--secondary-color);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="email"],
+        select, textarea {
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .search-box input {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: none;
+        }
+
+        .search-box button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding: 10px 20px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+        }
+
+        button.danger:hover {
+            background-color: #c0392b;
+        }
+
+        button.warning {
+            background-color: var(--warning-color);
+        }
+
+        button.warning:hover {
+            background-color: #d35400;
+        }
+
+        button.success {
+            background-color: var(--success-color);
+        }
+
+        button.success:hover {
+            background-color: #27ae60;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-buttons button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: modalopen 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .status-available {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .status-borrowed {
+            color: var(--warning-color);
+            font-weight: 500;
+        }
+
+        .status-overdue {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #888;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 5px 10px;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: var(--success-color);
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes slideIn {
+            from {transform: translateX(100%); opacity: 0;}
+            to {transform: translateX(0); opacity: 1;}
+        }
+
+        @keyframes fadeOut {
+            from {opacity: 1;}
+            to {opacity: 0;}
+        }
+
+        .book-cover {
+            width: 50px;
+            height: 70px;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .book-details {
+            display: flex;
+            gap: 15px;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .book-author {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+
+        .badge-fiction {
+            background-color: #d4e6f1;
+            color: #2874a6;
+        }
+
+        .badge-nonfiction {
+            background-color: #d5f5e3;
+            color: #27ae60;
+        }
+
+        .badge-science {
+            background-color: #ebdef0;
+            color: #8e44ad;
+        }
+
+        .badge-history {
+            background-color: #fdebd0;
+            color: #d35400;
+        }
+
+        .badge-biography {
+            background-color: #f9e79f;
+            color: #b7950b;
+        }
+
+        .badge-children {
+            background-color: #f5b7b1;
+            color: #c0392b;
+        }
+
+        .checkout-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: var(--light-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .checkout-info p {
+            margin-bottom: 5px;
+        }
+
+        .two-columns {
+            display: flex;
+            gap: 20px;
+        }
+
+        .column {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .two-columns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Könyvtárkezelő Rendszer</h1>
+            <div>
+                <button id="addBookBtn">+ Új könyv</button>
+                <button id="addMemberBtn">+ Új tag</button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="books">Könyvek</div>
+            <div class="tab" data-tab="members">Tagok</div>
+            <div class="tab" data-tab="checkouts">Kölcsönzések</div>
+        </div>
+
+        <!-- Books Tab -->
+        <div id="booksTab" class="tab-content active">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Összes könyv</h3>
+                    <p id="totalBooks">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Elérhető könyvek</h3>
+                    <p id="availableBooks">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Kikölcsönzött könyvek</h3>
+                    <p id="borrowedBooks">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Lejárt határidejű könyvek</h3>
+                    <p id="overdueBooks">0</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="bookSearchInput" placeholder="Keresés cím, szerző vagy ISBN szerint...">
+                    <button id="bookSearchBtn">Keresés</button>
+                </div>
+                <select id="filterCategory">
+                    <option value="all">Minden kategória</option>
+                    <option value="fiction">Szépirodalom</option>
+                    <option value="nonfiction">Szakirodalom</option>
+                    <option value="science">Tudomány</option>
+                    <option value="history">Történelem</option>
+                    <option value="biography">Életrajz</option>
+                    <option value="children">Gyermekkönyv</option>
+                </select>
+                <select id="filterStatus">
+                    <option value="all">Minden állapot</option>
+                    <option value="available">Elérhető</option>
+                    <option value="borrowed">Kikölcsönözve</option>
+                    <option value="overdue">Lejárt határidő</option>
+                </select>
+            </div>
+
+            <table id="booksTable">
+                <thead>
+                    <tr>
+                        <th>Könyv</th>
+                        <th>ISBN</th>
+                        <th>Kiadás éve</th>
+                        <th>Kategória</th>
+                        <th>Állapot</th>
+                        <th>Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody id="booksList">
+                    <!-- Book rows will be added here dynamically -->
+                </tbody>
+            </table>
+
+            <div id="booksEmptyState" class="empty-state">
+                <p>Még nincsenek könyvek a könyvtárban.</p>
+                <button id="addFirstBookBtn">Első könyv hozzáadása</button>
+            </div>
+
+            <div class="pagination" id="booksPagination">
+                <!-- Pagination buttons will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Members Tab -->
+        <div id="membersTab" class="tab-content">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Összes tag</h3>
+                    <p id="totalMembers">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Aktív tagok</h3>
+                    <p id="activeMembers">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Kölcsönzéssel rendelkező tagok</h3>
+                    <p id="membersWithBooks">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Lejárt határidejű tagok</h3>
+                    <p id="overdueMembers">0</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="memberSearchInput" placeholder="Keresés név, azonosító vagy email szerint...">
+                    <button id="memberSearchBtn">Keresés</button>
+                </div>
+            </div>
+
+            <table id="membersTable">
+                <thead>
+                    <tr>
+                        <th>Azonosító</th>
+                        <th>Név</th>
+                        <th>Email</th>
+                        <th>Telefonszám</th>
+                        <th>Regisztráció dátuma</th>
+                        <th>Kölcsönzött könyvek</th>
+                        <th>Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody id="membersList">
+                    <!-- Member rows will be added here dynamically -->
+                </tbody>
+            </table>
+
+            <div id="membersEmptyState" class="empty-state">
+                <p>Még nincsenek tagok regisztrálva.</p>
+                <button id="addFirstMemberBtn">Első tag hozzáadása</button>
+            </div>
+
+            <div class="pagination" id="membersPagination">
+                <!-- Pagination buttons will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Checkouts Tab -->
+        <div id="checkoutsTab" class="tab-content">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Összes kölcsönzés</h3>
+                    <p id="totalCheckouts">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Aktív kölcsönzések</h3>
+                    <p id="activeCheckouts">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Lejárt határidejű kölcsönzések</h3>
+                    <p id="overdueCheckouts">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Mai visszahozatalok</h3>
+                    <p id="todayReturns">0</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="checkoutSearchInput" placeholder="Keresés könyv vagy tag szerint...">
+                    <button id="checkoutSearchBtn">Keresés</button>
+                </div>
+                <button id="newCheckoutBtn" class="success">+ Új kölcsönzés</button>
+            </div>
+
+            <table id="checkoutsTable">
+                <thead>
+                    <tr>
+                        <th>Könyv</th>
+                        <th>Tag</th>
+                        <th>Kölcsönzés dátuma</th>
+                        <th>Határidő</th>
+                        <th>Állapot</th>
+                        <th>Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody id="checkoutsList">
+                    <!-- Checkout rows will be added here dynamically -->
+                </tbody>
+            </table>
+
+            <div id="checkoutsEmptyState" class="empty-state">
+                <p>Még nincsenek kölcsönzések.</p>
+                <button id="addFirstCheckoutBtn">Első kölcsönzés létrehozása</button>
+            </div>
+
+            <div class="pagination" id="checkoutsPagination">
+                <!-- Pagination buttons will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Book Modal -->
+    <div id="bookModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="bookModalTitle">Új könyv hozzáadása</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="bookForm">
+                <input type="hidden" id="bookId">
+                <div class="two-columns">
+                    <div class="column">
+                        <div class="form-group">
+                            <label for="title">Cím*</label>
+                            <input type="text" id="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Szerző*</label>
+                            <input type="text" id="author" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="isbn">ISBN*</label>
+                            <input type="text" id="isbn" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="publicationYear">Kiadás éve*</label>
+                            <input type="number" id="publicationYear" min="1000" max="2099" required>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="form-group">
+                            <label for="publisher">Kiadó</label>
+                            <input type="text" id="publisher">
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Kategória*</label>
+                            <select id="category" required>
+                                <option value="fiction">Szépirodalom</option>
+                                <option value="nonfiction">Szakirodalom</option>
+                                <option value="science">Tudomány</option>
+                                <option value="history">Történelem</option>
+                                <option value="biography">Életrajz</option>
+                                <option value="children">Gyermekkönyv</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pages">Oldalszám</label>
+                            <input type="number" id="pages" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="language">Nyelv</label>
+                            <input type="text" id="language" value="Magyar">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Leírás</label>
+                    <textarea id="description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelBookBtn">Mégse</button>
+                    <button type="submit" id="saveBookBtn" class="success">Mentés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Member Modal -->
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="memberModalTitle">Új tag hozzáadása</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="memberForm">
+                <input type="hidden" id="memberId">
+                <div class="two-columns">
+                    <div class="column">
+                        <div class="form-group">
+                            <label for="firstName">Vezetéknév*</label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Keresztnév*</label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email*</label>
+                            <input type="email" id="email" required>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="form-group">
+                            <label for="phone">Telefonszám*</label>
+                            <input type="text" id="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Cím</label>
+                            <input type="text" id="address">
+                        </div>
+                        <div class="form-group">
+                            <label for="birthDate">Születési dátum</label>
+                            <input type="date" id="birthDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Megjegyzések</label>
+                    <textarea id="notes" rows="2"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelMemberBtn">Mégse</button>
+                    <button type="submit" id="saveMemberBtn" class="success">Mentés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Új kölcsönzés</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <label for="checkoutMember">Tag*</label>
+                    <select id="checkoutMember" required>
+                        <option value="">Válassz tagot...</option>
+                        <!-- Members will be added here dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="checkoutBook">Könyv*</label>
+                    <select id="checkoutBook" required>
+                        <option value="">Válassz könyvet...</option>
+                        <!-- Available books will be added here dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="checkoutDate">Kölcsönzés dátuma*</label>
+                    <input type="date" id="checkoutDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">Határidő*</label>
+                    <input type="date" id="dueDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="checkoutNotes">Megjegyzések</label>
+                    <textarea id="checkoutNotes" rows="2"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelCheckoutBtn">Mégse</button>
+                    <button type="submit" id="saveCheckoutBtn" class="success">Kölcsönzés</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Book Details Modal -->
+    <div id="bookDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Könyv részletei</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="bookDetailsContent">
+                <!-- Book details will be added here dynamically -->
+            </div>
+            <div class="form-actions">
+                <button id="closeBookDetailsBtn">Bezárás</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Member Details Modal -->
+    <div id="memberDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tag részletei</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="memberDetailsContent">
+                <!-- Member details will be added here dynamically -->
+            </div>
+            <div class="form-actions">
+                <button id="closeMemberDetailsBtn">Bezárás</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="deleteModalTitle">Törlés megerősítése</h2>
+                <span class="close">&times;</span>
+            </div>
+            <p id="deleteModalText">Biztosan törölni szeretné ezt az elemet? Ez a művelet nem visszavonható.</p>
+            <div class="form-actions">
+                <button id="cancelDeleteBtn">Mégse</button>
+                <button id="confirmDeleteBtn" class="danger">Törlés</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        Sikeres művelet!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements - Tabs
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // DOM Elements - Books
+            const addBookBtn = document.getElementById('addBookBtn');
+            const addFirstBookBtn = document.getElementById('addFirstBookBtn');
+            const bookModal = document.getElementById('bookModal');
+            const bookForm = document.getElementById('bookForm');
+            const booksList = document.getElementById('booksList');
+            const booksEmptyState = document.getElementById('booksEmptyState');
+            const booksTable = document.getElementById('booksTable');
+            const bookModalTitle = document.getElementById('bookModalTitle');
+            const bookSearchInput = document.getElementById('bookSearchInput');
+            const bookSearchBtn = document.getElementById('bookSearchBtn');
+            const filterCategory = document.getElementById('filterCategory');
+            const filterStatus = document.getElementById('filterStatus');
+            const booksPagination = document.getElementById('booksPagination');
+            const bookDetailsModal = document.getElementById('bookDetailsModal');
+            const bookDetailsContent = document.getElementById('bookDetailsContent');
+            const closeBookDetailsBtn = document.getElementById('closeBookDetailsBtn');
+            
+            // DOM Elements - Members
+            const addMemberBtn = document.getElementById('addMemberBtn');
+            const addFirstMemberBtn = document.getElementById('addFirstMemberBtn');
+            const memberModal = document.getElementById('memberModal');
+            const memberForm = document.getElementById('memberForm');
+            const membersList = document.getElementById('membersList');
+            const membersEmptyState = document.getElementById('membersEmptyState');
+            const membersTable = document.getElementById('membersTable');
+            const memberModalTitle = document.getElementById('memberModalTitle');
+            const memberSearchInput = document.getElementById('memberSearchInput');
+            const memberSearchBtn = document.getElementById('memberSearchBtn');
+            const membersPagination = document.getElementById('membersPagination');
+            const memberDetailsModal = document.getElementById('memberDetailsModal');
+            const memberDetailsContent = document.getElementById('memberDetailsContent');
+            const closeMemberDetailsBtn = document.getElementById('closeMemberDetailsBtn');
+            
+            // DOM Elements - Checkouts
+            const newCheckoutBtn = document.getElementById('newCheckoutBtn');
+            const addFirstCheckoutBtn = document.getElementById('addFirstCheckoutBtn');
+            const checkoutModal = document.getElementById('checkoutModal');
+            const checkoutForm = document.getElementById('checkoutForm');
+            const checkoutsList = document.getElementById('checkoutsList');
+            const checkoutsEmptyState = document.getElementById('checkoutsEmptyState');
+            const checkoutsTable = document.getElementById('checkoutsTable');
+            const checkoutSearchInput = document.getElementById('checkoutSearchInput');
+            const checkoutSearchBtn = document.getElementById('checkoutSearchBtn');
+            const checkoutsPagination = document.getElementById('checkoutsPagination');
+            
+            // DOM Elements - Common
+            const closeButtons = document.getElementsByClassName('close');
+            const deleteModal = document.getElementById('deleteModal');
+            const deleteModalTitle = document.getElementById('deleteModalTitle');
+            const deleteModalText = document.getElementById('deleteModalText');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const notification = document.getElementById('notification');
+            
+            // Stats elements
+            const totalBooks = document.getElementById('totalBooks');
+            const availableBooks = document.getElementById('availableBooks');
+            const borrowedBooks = document.getElementById('borrowedBooks');
+            const overdueBooks = document.getElementById('overdueBooks');
+            const totalMembers = document.getElementById('totalMembers');
+            const activeMembers = document.getElementById('activeMembers');
+            const membersWithBooks = document.getElementById('membersWithBooks');
+            const overdueMembers = document.getElementById('overdueMembers');
+            const totalCheckouts = document.getElementById('totalCheckouts');
+            const activeCheckouts = document.getElementById('activeCheckouts');
+            const overdueCheckouts = document.getElementById('overdueCheckouts');
+            const todayReturns = document.getElementById('todayReturns');
+            
+            // Form fields - Book
+            const bookId = document.getElementById('bookId');
+            const title = document.getElementById('title');
+            const author = document.getElementById('author');
+            const isbn = document.getElementById('isbn');
+            const publicationYear = document.getElementById('publicationYear');
+            const publisher = document.getElementById('publisher');
+            const category = document.getElementById('category');
+            const pages = document.getElementById('pages');
+            const language = document.getElementById('language');
+            const description = document.getElementById('description');
+            const cancelBookBtn = document.getElementById('cancelBookBtn');
+            
+            // Form fields - Member
+            const memberId = document.getElementById('memberId');
+            const firstName = document.getElementById('firstName');
+            const lastName = document.getElementById('lastName');
+            const email = document.getElementById('email');
+            const phone = document.getElementById('phone');
+            const address = document.getElementById('address');
+            const birthDate = document.getElementById('birthDate');
+            const notes = document.getElementById('notes');
+            const cancelMemberBtn = document.getElementById('cancelMemberBtn');
+            
+            // Form fields - Checkout
+            const checkoutMember = document.getElementById('checkoutMember');
+            const checkoutBook = document.getElementById('checkoutBook');
+            const checkoutDate = document.getElementById('checkoutDate');
+            const dueDate = document.getElementById('dueDate');
+            const checkoutNotes = document.getElementById('checkoutNotes');
+            const cancelCheckoutBtn = document.getElementById('cancelCheckoutBtn');
+            
+            // Variables
+            let books = JSON.parse(localStorage.getItem('books')) || [];
+            let members = JSON.parse(localStorage.getItem('members')) || [];
+            let checkouts = JSON.parse(localStorage.getItem('checkouts')) || [];
+            let currentBookId = null;
+            let currentMemberId = null;
+            let currentCheckoutId = null;
+            let currentDeleteType = null;
+            let currentDeleteId = null;
+            let currentBookPage = 1;
+            let currentMemberPage = 1;
+            let currentCheckoutPage = 1;
+            const itemsPerPage = 10;
+            let filteredBooks = [...books];
+            let filteredMembers = [...members];
+            let filteredCheckouts = [...checkouts];
+            
+            // Initialize
+            updateStats();
+            updateUI();
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab') + 'Tab';
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Event Listeners - Books
+            addBookBtn.addEventListener('click', openAddBookModal);
+            addFirstBookBtn.addEventListener('click', openAddBookModal);
+            bookForm.addEventListener('submit', saveBook);
+            cancelBookBtn.addEventListener('click', () => bookModal.style.display = 'none');
+            bookSearchBtn.addEventListener('click', () => {
+                currentBookPage = 1;
+                filterBooks();
+            });
+            bookSearchInput.addEventListener('keyup', e => {
+                if (e.key === 'Enter') {
+                    currentBookPage = 1;
+                    filterBooks();
+                }
+            });
+            filterCategory.addEventListener('change', () => {
+                currentBookPage = 1;
+                filterBooks();
+            });
+            filterStatus.addEventListener('change', () => {
+                currentBookPage = 1;
+                filterBooks();
+            });
+            closeBookDetailsBtn.addEventListener('click', () => bookDetailsModal.style.display = 'none');
+            
+            // Event Listeners - Members
+            addMemberBtn.addEventListener('click', openAddMemberModal);
+            addFirstMemberBtn.addEventListener('click', openAddMemberModal);
+            memberForm.addEventListener('submit', saveMember);
+            cancelMemberBtn.addEventListener('click', () => memberModal.style.display = 'none');
+            memberSearchBtn.addEventListener('click', () => {
+                currentMemberPage = 1;
+                filterMembers();
+            });
+            memberSearchInput.addEventListener('keyup', e => {
+                if (e.key === 'Enter') {
+                    currentMemberPage = 1;
+                    filterMembers();
+                }
+            });
+            closeMemberDetailsBtn.addEventListener('click', () => memberDetailsModal.style.display = 'none');
+            
+            // Event Listeners - Checkouts
+            newCheckoutBtn.addEventListener('click', openNewCheckoutModal);
+            addFirstCheckoutBtn.addEventListener('click', openNewCheckoutModal);
+            checkoutForm.addEventListener('submit', saveCheckout);
+            cancelCheckoutBtn.addEventListener('click', () => checkoutModal.style.display = 'none');
+            checkoutSearchBtn.addEventListener('click', () => {
+                currentCheckoutPage = 1;
+                filterCheckouts();
+            });
+            checkoutSearchInput.addEventListener('keyup', e => {
+                if (e.key === 'Enter') {
+                    currentCheckoutPage = 1;
+                    filterCheckouts();
+                }
+            });
+            
+            // Event Listeners - Common
+            for (let i = 0; i < closeButtons.length; i++) {
+                closeButtons[i].addEventListener('click', function() {
+                    bookModal.style.display = 'none';
+                    memberModal.style.display = 'none';
+                    checkoutModal.style.display = 'none';
+                    deleteModal.style.display = 'none';
+                    bookDetailsModal.style.display = 'none';
+                    memberDetailsModal.style.display = 'none';
+                });
+            }
+            
+            cancelDeleteBtn.addEventListener('click', () => deleteModal.style.display = 'none');
+            confirmDeleteBtn.addEventListener('click', confirmDelete);
+            
+            // Window click to close modals
+            window.addEventListener('click', e => {
+                if (e.target === bookModal) bookModal.style.display = 'none';
+                if (e.target === memberModal) memberModal.style.display = 'none';
+                if (e.target === checkoutModal) checkoutModal.style.display = 'none';
+                if (e.target === deleteModal) deleteModal.style.display = 'none';
+                if (e.target === bookDetailsModal) bookDetailsModal.style.display = 'none';
+                if (e.target === memberDetailsModal) memberDetailsModal.style.display = 'none';
+            });
+            
+            // Functions - Books
+            function openAddBookModal() {
+                bookModalTitle.textContent = 'Új könyv hozzáadása';
+                bookForm.reset();
+                bookId.value = '';
+                currentBookId = null;
+                
+                // Set default values
+                const currentYear = new Date().getFullYear();
+                publicationYear.value = currentYear;
+                language.value = 'Magyar';
+                
+                bookModal.style.display = 'block';
+            }
+            
+            function openEditBookModal(id) {
+                const book = books.find(b => b.id === id);
+                if (!book) return;
+                
+                bookModalTitle.textContent = 'Könyv szerkesztése';
+                bookId.value = book.id;
+                title.value = book.title;
+                author.value = book.author;
+                isbn.value = book.isbn;
+                publicationYear.value = book.publicationYear;
+                publisher.value = book.publisher || '';
+                category.value = book.category;
+                pages.value = book.pages || '';
+                language.value = book.language || 'Magyar';
+                description.value = book.description || '';
+                
+                currentBookId = id;
+                bookModal.style.display = 'block';
+            }
+            
+            function saveBook(e) {
+                e.preventDefault();
+                
+                const newBook = {
+                    id: currentBookId || Date.now().toString(),
+                    title: title.value,
+                    author: author.value,
+                    isbn: isbn.value,
+                    publicationYear: publicationYear.value,
+                    publisher: publisher.value,
+                    category: category.value,
+                    pages: pages.value,
+                    language: language.value,
+                    description: description.value,
+                    status: currentBookId ? getBookStatus(currentBookId) : 'available'
+                };
+                
+                if (currentBookId) {
+                    // Edit existing book
+                    const index = books.findIndex(b => b.id === currentBookId);
+                    if (index !== -1) {
+                        books[index] = newBook;
+                        showNotification('Könyv sikeresen frissítve!');
+                    }
+                } else {
+                    // Add new book
+                    books.push(newBook);
+                    showNotification('Új könyv sikeresen hozzáadva!');
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('books', JSON.stringify(books));
+                
+                // Update UI
+                bookModal.style.display = 'none';
+                updateStats();
+                filterBooks();
+            }
+            
+            function getBookStatus(bookId) {
+                const activeCheckout = checkouts.find(c => c.bookId === bookId && !c.returnDate);
+                if (!activeCheckout) return 'available';
+                
+                const today = new Date();
+                const dueDate = new Date(activeCheckout.dueDate);
+                
+                return today > dueDate ? 'overdue' : 'borrowed';
+            }
+            
+            function openBookDetails(id) {
+                const book = books.find(b => b.id === id);
+                if (!book) return;
+                
+                const activeCheckout = checkouts.find(c => c.bookId === id && !c.returnDate);
+                let checkoutInfo = '';
+                
+                if (activeCheckout) {
+                    const member = members.find(m => m.id === activeCheckout.memberId);
+                    const memberName = member ? `${member.firstName} ${member.lastName}` : 'Ismeretlen tag';
+                    const dueDate = new Date(activeCheckout.dueDate).toLocaleDateString('hu-HU');
+                    
+                    checkoutInfo = `
+                        <div class="checkout-info">
+                            <p><strong>Kikölcsönözve:</strong> ${memberName}</p>
+                            <p><strong>Határidő:</strong> ${dueDate}</p>
+                        </div>
+                    `;
+                }
+                
+                // Format category badge
+                let categoryBadge = '';
+                switch(book.category) {
+                    case 'fiction':
+                        categoryBadge = '<span class="badge badge-fiction">Szépirodalom</span>';
+                        break;
+                    case 'nonfiction':
+                        categoryBadge = '<span class="badge badge-nonfiction">Szakirodalom</span>';
+                        break;
+                    case 'science':
+                        categoryBadge = '<span class="badge badge-science">Tudomány</span>';
+                        break;
+                    case 'history':
+                        categoryBadge = '<span class="badge badge-history">Történelem</span>';
+                        break;
+                    case 'biography':
+                        categoryBadge = '<span class="badge badge-biography">Életrajz</span>';
+                        break;
+                    case 'children':
+                        categoryBadge = '<span class="badge badge-children">Gyermekkönyv</span>';
+                        break;
+                }
+                
+                bookDetailsContent.innerHTML = `
+                    <div class="book-details">
+                        <div class="book-cover">${book.title.substring(0, 2).toUpperCase()}</div>
+                        <div class="book-info">
+                            <h3>${book.title}</h3>
+                            <p>${book.author}</p>
+                            ${categoryBadge}
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <p><strong>ISBN:</strong> ${book.isbn}</p>
+                        <p><strong>Kiadás éve:</strong> ${book.publicationYear}</p>
+                        ${book.publisher ? `<p><strong>Kiadó:</strong> ${book.publisher}</p>` : ''}
+                        ${book.pages ? `<p><strong>Oldalszám:</strong> ${book.pages}</p>` : ''}
+                        <p><strong>Nyelv:</strong> ${book.language || 'Magyar'}</p>
+                        ${book.description ? `<p><strong>Leírás:</strong> ${book.description}</p>` : ''}
+                    </div>
+                    ${checkoutInfo}
+                `;
+                
+                bookDetailsModal.style.display = 'block';
+            }
+            
+            function filterBooks() {
+                const searchTerm = bookSearchInput.value.toLowerCase();
+                const categoryFilter = filterCategory.value;
+                const statusFilter = filterStatus.value;
+                
+                filteredBooks = books.filter(book => {
+                    const matchesSearch = 
+                        book.title.toLowerCase().includes(searchTerm) ||
+                        book.author.toLowerCase().includes(searchTerm) ||
+                        book.isbn.toLowerCase().includes(searchTerm);
+                    
+                    const matchesCategory = categoryFilter === 'all' || book.category === categoryFilter;
+                    
+                    const bookStatus = getBookStatus(book.id);
+                    const matchesStatus = statusFilter === 'all' || bookStatus === statusFilter;
+                    
+                    return matchesSearch && matchesCategory && matchesStatus;
+                });
+                
+                renderBooks();
+                renderBooksPagination();
+            }
+            
+            function renderBooks() {
+                booksList.innerHTML = '';
+                
+                if (filteredBooks.length === 0) {
+                    booksTable.style.display = 'none';
+                    booksEmptyState.style.display = 'block';
+                    return;
+                }
+                
+                booksTable.style.display = 'table';
+                booksEmptyState.style.display = 'none';
+                
+                // Calculate pagination
+                const startIndex = (currentBookPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedBooks = filteredBooks.slice(startIndex, endIndex);
+                
+                paginatedBooks.forEach(book => {
+                    const row = document.createElement('tr');
+                    
+                    // Get book status
+                    const status = getBookStatus(book.id);
+                    let statusText = '';
+                    let statusClass = '';
+                    
+                    switch(status) {
+                        case 'available':
+                            statusText = 'Elérhető';
+                            statusClass = 'status-available';
+                            break;
+                        case 'borrowed':
+                            statusText = 'Kikölcsönözve';
+                            statusClass = 'status-borrowed';
+                            break;
+                        case 'overdue':
+                            statusText = 'Lejárt határidő';
+                            statusClass = 'status-overdue';
+                            break;
+                    }
+                    
+                    // Format category text
+                    let categoryText = '';
+                    switch(book.category) {
+                        case 'fiction':
+                            categoryText = 'Szépirodalom';
+                            break;
+                        case 'nonfiction':
+                            categoryText = 'Szakirodalom';
+                            break;
+                        case 'science':
+                            categoryText = 'Tudomány';
+                            break;
+                        case 'history':
+                            categoryText = 'Történelem';
+                            break;
+                        case 'biography':
+                            categoryText = 'Életrajz';
+                            break;
+                        case 'children':
+                            categoryText = 'Gyermekkönyv';
+                            break;
+                    }
+                    
+                    row.innerHTML = `
+                        <td>
+                            <div class="book-details">
+                                <div class="book-cover">${book.title.substring(0, 2).toUpperCase()}</div>
+                                <div class="book-info">
+                                    <div class="book-title">${book.title}</div>
+                                    <div class="book-author">${book.author}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${book.isbn}</td>
+                        <td>${book.publicationYear}</td>
+                        <td>${categoryText}</td>
+                        <td class="${statusClass}">${statusText}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="view-book-btn" data-id="${book.id}">Részletek</button>
+                                <button class="edit-book-btn" data-id="${book.id}">Szerkesztés</button>
+                                <button class="delete-book-btn danger" data-id="${book.id}">Törlés</button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    booksList.appendChild(row);
+                });
+                
+                // Add event listeners to buttons
+                document.querySelectorAll('.view-book-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openBookDetails(btn.getAttribute('data-id')));
+                });
+                
+                document.querySelectorAll('.edit-book-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openEditBookModal(btn.getAttribute('data-id')));
+                });
+                
+                document.querySelectorAll('.delete-book-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openDeleteModal('book', btn.getAttribute('data-id')));
+                });
+            }
+            
+            function renderBooksPagination() {
+                booksPagination.innerHTML = '';
+                
+                if (filteredBooks.length <= itemsPerPage) {
+                    booksPagination.style.display = 'none';
+                    return;
+                }
+                
+                booksPagination.style.display = 'flex';
+                
+                const pageCount = Math.ceil(filteredBooks.length / itemsPerPage);
+                
+                // Previous button
+                if (currentBookPage > 1) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.textContent = '«';
+                    prevBtn.addEventListener('click', () => {
+                        currentBookPage--;
+                        renderBooks();
+                        renderBooksPagination();
+                    });
+                    booksPagination.appendChild(prevBtn);
+                }
+                
+                // Page buttons
+                for (let i = 1; i <= pageCount; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    if (i === currentBookPage) {
+                        pageBtn.classList.add('active');
+                    }
+                    
+                    pageBtn.addEventListener('click', () => {
+                        currentBookPage = i;
+                        renderBooks();
+                        renderBooksPagination();
+                    });
+                    
+                    booksPagination.appendChild(pageBtn);
+                }
+                
+                // Next button
+                if (currentBookPage < pageCount) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.textContent = '»';
+                    nextBtn.addEventListener('click', () => {
+                        currentBookPage++;
+                        renderBooks();
+                        renderBooksPagination();
+                    });
+                    booksPagination.appendChild(nextBtn);
+                }
+            }
+            
+            // Functions - Members
+            function openAddMemberModal() {
+                memberModalTitle.textContent = 'Új tag hozzáadása';
+                memberForm.reset();
+                memberId.value = '';
+                currentMemberId = null;
+                
+                memberModal.style.display = 'block';
+            }
+            
+            function openEditMemberModal(id) {
+                const member = members.find(m => m.id === id);
+                if (!member) return;
+                
+                memberModalTitle.textContent = 'Tag szerkesztése';
+                memberId.value = member.id;
+                firstName.value = member.firstName;
+                lastName.value = member.lastName;
+                email.value = member.email;
+                phone.value = member.phone;
+                address.value = member.address || '';
+                birthDate.value = member.birthDate || '';
+                notes.value = member.notes || '';
+                
+                currentMemberId = id;
+                memberModal.style.display = 'block';
+            }
+            
+            function saveMember(e) {
+                e.preventDefault();
+                
+                const newMember = {
+                    id: currentMemberId || Date.now().toString(),
+                    firstName: firstName.value,
+                    lastName: lastName.value,
+                    email: email.value,
+                    phone: phone.value,
+                    address: address.value,
+                    birthDate: birthDate.value,
+                    notes: notes.value,
+                    registrationDate: currentMemberId ? getMemberRegistrationDate(currentMemberId) : new Date().toISOString().split('T')[0]
+                };
+                
+                if (currentMemberId) {
+                    // Edit existing member
+                    const index = members.findIndex(m => m.id === currentMemberId);
+                    if (index !== -1) {
+                        members[index] = newMember;
+                        showNotification('Tag sikeresen frissítve!');
+                    }
+                } else {
+                    // Add new member
+                    members.push(newMember);
+                    showNotification('Új tag sikeresen hozzáadva!');
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('members', JSON.stringify(members));
+                
+                // Update UI
+                memberModal.style.display = 'none';
+                updateStats();
+                filterMembers();
+            }
+            
+            function getMemberRegistrationDate(memberId) {
+                const member = members.find(m => m.id === memberId);
+                return member ? member.registrationDate : new Date().toISOString().split('T')[0];
+            }
+            
+            function openMemberDetails(id) {
+                const member = members.find(m => m.id === id);
+                if (!member) return;
+                
+                // Get active checkouts for this member
+                const memberCheckouts = checkouts.filter(c => c.memberId === id && !c.returnDate);
+                let checkoutsHtml = '';
+                
+                if (memberCheckouts.length > 0) {
+                    checkoutsHtml = '<h3 style="margin-top: 20px; margin-bottom: 10px;">Aktív kölcsönzések</h3><ul>';
+                    
+                    memberCheckouts.forEach(checkout => {
+                        const book = books.find(b => b.id === checkout.bookId);
+                        const bookTitle = book ? book.title : 'Ismeretlen könyv';
+                        const dueDate = new Date(checkout.dueDate).toLocaleDateString('hu-HU');
+                        const isOverdue = new Date() > new Date(checkout.dueDate);
+                        
+                        checkoutsHtml += `
+                            <li style="margin-bottom: 10px;">
+                                <strong>${bookTitle}</strong><br>
+                                Határidő: <span class="${isOverdue ? 'status-overdue' : ''}">${dueDate}</span>
+                            </li>
+                        `;
+                    });
+                    
+                    checkoutsHtml += '</ul>';
+                }
+                
+                memberDetailsContent.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h3>${member.firstName} ${member.lastName}</h3>
+                        <p><strong>Email:</strong> ${member.email}</p>
+                        <p><strong>Telefonszám:</strong> ${member.phone}</p>
+                        ${member.address ? `<p><strong>Cím:</strong> ${member.address}</p>` : ''}
+                        ${member.birthDate ? `<p><strong>Születési dátum:</strong> ${new Date(member.birthDate).toLocaleDateString('hu-HU')}</p>` : ''}
+                        <p><strong>Regisztráció dátuma:</strong> ${new Date(member.registrationDate).toLocaleDateString('hu-HU')}</p>
+                        ${member.notes ? `<p><strong>Megjegyzések:</strong> ${member.notes}</p>` : ''}
+                    </div>
+                    ${checkoutsHtml}
+                `;
+                
+                memberDetailsModal.style.display = 'block';
+            }
+            
+            function filterMembers() {
+                const searchTerm = memberSearchInput.value.toLowerCase();
+                
+                filteredMembers = members.filter(member => {
+                    return member.firstName.toLowerCase().includes(searchTerm) ||
+                           member.lastName.toLowerCase().includes(searchTerm) ||
+                           member.email.toLowerCase().includes(searchTerm) ||
+                           member.phone.includes(searchTerm);
+                });
+                
+                renderMembers();
+                renderMembersPagination();
+            }
+            
+            function renderMembers() {
+                membersList.innerHTML = '';
+                
+                if (filteredMembers.length === 0) {
+                    membersTable.style.display = 'none';
+                    membersEmptyState.style.display = 'block';
+                    return;
+                }
+                
+                membersTable.style.display = 'table';
+                membersEmptyState.style.display = 'none';
+                
+                // Calculate pagination
+                const startIndex = (currentMemberPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedMembers = filteredMembers.slice(startIndex, endIndex);
+                
+                paginatedMembers.forEach(member => {
+                    const row = document.createElement('tr');
+                    
+                    // Count active checkouts
+                    const activeCheckoutsCount = checkouts.filter(c => c.memberId === member.id && !c.returnDate).length;
+                    
+                    // Check if member has overdue books
+                    const hasOverdueBooks = checkouts.some(c => {
+                        return c.memberId === member.id && 
+                               !c.returnDate && 
+                               new Date() > new Date(c.dueDate);
+                    });
+                    
+                    row.innerHTML = `
+                        <td>${member.id}</td>
+                        <td>${member.firstName} ${member.lastName}</td>
+                        <td>${member.email}</td>
+                        <td>${member.phone}</td>
+                        <td>${new Date(member.registrationDate).toLocaleDateString('hu-HU')}</td>
+                        <td>
+                            ${activeCheckoutsCount} 
+                            ${hasOverdueBooks ? '<span class="status-overdue">(lejárt)</span>' : ''}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="view-member-btn" data-id="${member.id}">Részletek</button>
+                                <button class="edit-member-btn" data-id="${member.id}">Szerkesztés</button>
+                                <button class="delete-member-btn danger" data-id="${member.id}">Törlés</button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    membersList.appendChild(row);
+                });
+                
+                // Add event listeners to buttons
+                document.querySelectorAll('.view-member-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openMemberDetails(btn.getAttribute('data-id')));
+                });
+                
+                document.querySelectorAll('.edit-member-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openEditMemberModal(btn.getAttribute('data-id')));
+                });
+                
+                document.querySelectorAll('.delete-member-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openDeleteModal('member', btn.getAttribute('data-id')));
+                });
+            }
+            
+            function renderMembersPagination() {
+                membersPagination.innerHTML = '';
+                
+                if (filteredMembers.length <= itemsPerPage) {
+                    membersPagination.style.display = 'none';
+                    return;
+                }
+                
+                membersPagination.style.display = 'flex';
+                
+                const pageCount = Math.ceil(filteredMembers.length / itemsPerPage);
+                
+                // Previous button
+                if (currentMemberPage > 1) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.textContent = '«';
+                    prevBtn.addEventListener('click', () => {
+                        currentMemberPage--;
+                        renderMembers();
+                        renderMembersPagination();
+                    });
+                    membersPagination.appendChild(prevBtn);
+                }
+                
+                // Page buttons
+                for (let i = 1; i <= pageCount; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    if (i === currentMemberPage) {
+                        pageBtn.classList.add('active');
+                    }
+                    
+                    pageBtn.addEventListener('click', () => {
+                        currentMemberPage = i;
+                        renderMembers();
+                        renderMembersPagination();
+                    });
+                    
+                    membersPagination.appendChild(pageBtn);
+                }
+                
+                // Next button
+                if (currentMemberPage < pageCount) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.textContent = '»';
+                    nextBtn.addEventListener('click', () => {
+                        currentMemberPage++;
+                        renderMembers();
+                        renderMembersPagination();
+                    });
+                    membersPagination.appendChild(nextBtn);
+                }
+            }
+            
+            // Functions - Checkouts
+            function openNewCheckoutModal() {
+                checkoutForm.reset();
+                
+                // Set default dates
+                const today = new Date().toISOString().split('T')[0];
+                checkoutDate.value = today;
+                
+                // Default due date is 2 weeks from today
+                const twoWeeksLater = new Date();
+                twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
+                dueDate.value = twoWeeksLater.toISOString().split('T')[0];
+                
+                // Populate member dropdown
+                checkoutMember.innerHTML = '<option value="">Válassz tagot...</option>';
+                members.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.textContent = `${member.firstName} ${member.lastName}`;
+                    checkoutMember.appendChild(option);
+                });
+                
+                // Populate book dropdown with available books
+                checkoutBook.innerHTML = '<option value="">Válassz könyvet...</option>';
+                books.filter(book => getBookStatus(book.id) === 'available').forEach(book => {
+                    const option = document.createElement('option');
+                    option.value = book.id;
+                    option.textContent = `${book.title} (${book.author})`;
+                    checkoutBook.appendChild(option);
+                });
+                
+                checkoutModal.style.display = 'block';
+            }
+            
+            function saveCheckout(e) {
+                e.preventDefault();
+                
+                const newCheckout = {
+                    id: Date.now().toString(),
+                    bookId: checkoutBook.value,
+                    memberId: checkoutMember.value,
+                    checkoutDate: checkoutDate.value,
+                    dueDate: dueDate.value,
+                    notes: checkoutNotes.value,
+                    returnDate: null
+                };
+                
+                checkouts.push(newCheckout);
+                
+                // Save to localStorage
+                localStorage.setItem('checkouts', JSON.stringify(checkouts));
+                
+                // Update UI
+                checkoutModal.style.display = 'none';
+                showNotification('Kölcsönzés sikeresen létrehozva!');
+                updateStats();
+                filterCheckouts();
+            }
+            
+            function returnBook(checkoutId) {
+                const index = checkouts.findIndex(c => c.id === checkoutId);
+                if (index !== -1) {
+                    checkouts[index].returnDate = new Date().toISOString().split('T')[0];
+                    
+                    // Save to localStorage
+                    localStorage.setItem('checkouts', JSON.stringify(checkouts));
+                    
+                    // Update UI
+                    showNotification('Könyv sikeresen visszahozva!');
+                    updateStats();
+                    filterCheckouts();
+                }
+            }
+            
+            function filterCheckouts() {
+                const searchTerm = checkoutSearchInput.value.toLowerCase();
+                
+                filteredCheckouts = checkouts.filter(checkout => {
+                    const book = books.find(b => b.id === checkout.bookId);
+                    const member = members.find(m => m.id === checkout.memberId);
+                    
+                    const bookTitle = book ? book.title.toLowerCase() : '';
+                    const memberName = member ? 
+                        `${member.firstName} ${member.lastName}`.toLowerCase() : '';
+                    
+                    return bookTitle.includes(searchTerm) || memberName.includes(searchTerm);
+                });
+                
+                renderCheckouts();
+                renderCheckoutsPagination();
+            }
+            
+            function renderCheckouts() {
+                checkoutsList.innerHTML = '';
+                
+                if (filteredCheckouts.length === 0) {
+                    checkoutsTable.style.display = 'none';
+                    checkoutsEmptyState.style.display = 'block';
+                    return;
+                }
+                
+                checkoutsTable.style.display = 'table';
+                checkoutsEmptyState.style.display = 'none';
+                
+                // Calculate pagination
+                const startIndex = (currentCheckoutPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedCheckouts = filteredCheckouts.slice(startIndex, endIndex);
+                
+                paginatedCheckouts.forEach(checkout => {
+                    const row = document.createElement('tr');
+                    
+                    const book = books.find(b => b.id === checkout.bookId);
+                    const member = members.find(m => m.id === checkout.memberId);
+                    
+                    const bookTitle = book ? book.title : 'Ismeretlen könyv';
+                    const memberName = member ? `${member.firstName} ${member.lastName}` : 'Ismeretlen tag';
+                    
+                    const checkoutDateFormatted = new Date(checkout.checkoutDate).toLocaleDateString('hu-HU');
+                    const dueDateFormatted = new Date(checkout.dueDate).toLocaleDateString('hu-HU');
+                    
+                    let status = '';
+                    let statusClass = '';
+                    
+                    if (checkout.returnDate) {
+                        status = 'Visszahozva';
+                        statusClass = 'status-available';
+                    } else {
+                        const today = new Date();
+                        const dueDate = new Date(checkout.dueDate);
+                        
+                        if (today > dueDate) {
+                            status = 'Lejárt határidő';
+                            statusClass = 'status-overdue';
+                        } else {
+                            status = 'Kikölcsönözve';
+                            statusClass = 'status-borrowed';
+                        }
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${bookTitle}</td>
+                        <td>${memberName}</td>
+                        <td>${checkoutDateFormatted}</td>
+                        <td>${dueDateFormatted}</td>
+                        <td class="${statusClass}">${status}</td>
+                        <td>
+                            <div class="action-buttons">
+                                ${!checkout.returnDate ? 
+                                    `<button class="return-book-btn success" data-id="${checkout.id}">Visszahozás</button>` : 
+                                    ''}
+                                <button class="delete-checkout-btn danger" data-id="${checkout.id}">Törlés</button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    checkoutsList.appendChild(row);
+                });
+                
+                // Add event listeners to buttons
+                document.querySelectorAll('.return-book-btn').forEach(btn => {
+                    btn.addEventListener('click', () => returnBook(btn.getAttribute('data-id')));
+                });
+                
+                document.querySelectorAll('.delete-checkout-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openDeleteModal('checkout', btn.getAttribute('data-id')));
+                });
+            }
+            
+            function renderCheckoutsPagination() {
+                checkoutsPagination.innerHTML = '';
+                
+                if (filteredCheckouts.length <= itemsPerPage) {
+                    checkoutsPagination.style.display = 'none';
+                    return;
+                }
+                
+                checkoutsPagination.style.display = 'flex';
+                
+                const pageCount = Math.ceil(filteredCheckouts.length / itemsPerPage);
+                
+                // Previous button
+                if (currentCheckoutPage > 1) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.textContent = '«';
+                    prevBtn.addEventListener('click', () => {
+                        currentCheckoutPage--;
+                        renderCheckouts();
+                        renderCheckoutsPagination();
+                    });
+                    checkoutsPagination.appendChild(prevBtn);
+                }
+                
+                // Page buttons
+                for (let i = 1; i <= pageCount; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    if (i === currentCheckoutPage) {
+                        pageBtn.classList.add('active');
+                    }
+                    
+                    pageBtn.addEventListener('click', () => {
+                        currentCheckoutPage = i;
+                        renderCheckouts();
+                        renderCheckoutsPagination();
+                    });
+                    
+                    checkoutsPagination.appendChild(pageBtn);
+                }
+                
+                // Next button
+                if (currentCheckoutPage < pageCount) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.textContent = '»';
+                    nextBtn.addEventListener('click', () => {
+                        currentCheckoutPage++;
+                        renderCheckouts();
+                        renderCheckoutsPagination();
+                    });
+                    checkoutsPagination.appendChild(nextBtn);
+                }
+            }
+            
+            // Functions - Common
+            function openDeleteModal(type, id) {
+                currentDeleteType = type;
+                currentDeleteId = id;
+                
+                switch(type) {
+                    case 'book':
+                        deleteModalTitle.textContent = 'Könyv törlése';
+                        deleteModalText.textContent = 'Biztosan törölni szeretné ezt a könyvet? Ez a művelet nem visszavonható.';
+                        break;
+                    case 'member':
+                        deleteModalTitle.textContent = 'Tag törlése';
+                        deleteModalText.textContent = 'Biztosan törölni szeretné ezt a tagot? Ez a művelet nem visszavonható.';
+                        break;
+                    case 'checkout':
+                        deleteModalTitle.textContent = 'Kölcsönzés törlése';
+                        deleteModalText.textContent = 'Biztosan törölni szeretné ezt a kölcsönzést? Ez a művelet nem visszavonható.';
+                        break;
+                }
+                
+                deleteModal.style.display = 'block';
+            }
+            
+            function confirmDelete() {
+                switch(currentDeleteType) {
+                    case 'book':
+                        books = books.filter(b => b.id !== currentDeleteId);
+                        localStorage.setItem('books', JSON.stringify(books));
+                        showNotification('Könyv sikeresen törölve!');
+                        filterBooks();
+                        break;
+                    case 'member':
+                        members = members.filter(m => m.id !== currentDeleteId);
+                        localStorage.setItem('members', JSON.stringify(members));
+                        showNotification('Tag sikeresen törölve!');
+                        filterMembers();
+                        break;
+                    case 'checkout':
+                        checkouts = checkouts.filter(c => c.id !== currentDeleteId);
+                        localStorage.setItem('checkouts', JSON.stringify(checkouts));
+                        showNotification('Kölcsönzés sikeresen törölve!');
+                        filterCheckouts();
+                        break;
+                }
+                
+                deleteModal.style.display = 'none';
+                updateStats();
+            }
+            
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.style.display = 'block';
+                
+                // Hide notification after 3 seconds
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            function updateStats() {
+                // Books stats
+                totalBooks.textContent = books.length;
+                
+                const availableBooksCount = books.filter(book => getBookStatus(book.id) === 'available').length;
+                availableBooks.textContent = availableBooksCount;
+                
+                const borrowedBooksCount = books.filter(book => getBookStatus(book.id) === 'borrowed').length;
+                borrowedBooks.textContent = borrowedBooksCount;
+                
+                const overdueBooksCount = books.filter(book => getBookStatus(book.id) === 'overdue').length;
+                overdueBooks.textContent = overdueBooksCount;
+                
+                // Members stats
+                totalMembers.textContent = members.length;
+                activeMembers.textContent = members.length; // All members are considered active for now
+                
+                const membersWithBooksCount = new Set(
+                    checkouts.filter(c => !c.returnDate).map(c => c.memberId)
+                ).size;
+                membersWithBooks.textContent = membersWithBooksCount;
+                
+                const overdueMembersCount = new Set(
+                    checkouts.filter(c => {
+                        return !c.returnDate && new Date() > new Date(c.dueDate);
+                    }).map(c => c.memberId)
+                ).size;
+                overdueMembers.textContent = overdueMembersCount;
+                
+                // Checkouts stats
+                totalCheckouts.textContent = checkouts.length;
+                
+                const activeCheckoutsCount = checkouts.filter(c => !c.returnDate).length;
+                activeCheckouts.textContent = activeCheckoutsCount;
+                
+                const overdueCheckoutsCount = checkouts.filter(c => {
+                    return !c.returnDate && new Date() > new Date(c.dueDate);
+                }).length;
+                overdueCheckouts.textContent = overdueCheckoutsCount;
+                
+                const today = new Date().toISOString().split('T')[0];
+                const todayReturnsCount = checkouts.filter(c => c.dueDate === today && !c.returnDate).length;
+                todayReturns.textContent = todayReturnsCount;
+            }
+            
+            function updateUI() {
+                filterBooks();
+                filterMembers();
+                filterCheckouts();
+            }
+            
+            // Add some sample data if no data exists
+            if (books.length === 0 && members.length === 0 && checkouts.length === 0) {
+                // Sample books
+                const sampleBooks = [
+                    {
+                        id: '1',
+                        title: 'Az időtlen idők városa',
+                        author: 'Szabó Magda',
+                        isbn: '9789631420494',
+                        publicationYear: '2015',
+                        publisher: 'Magvető',
+                        category: 'fiction',
+                        pages: '320',
+                        language: 'Magyar',
+                        description: 'Szabó Magda regénye a múlt és jelen összefonódásáról.',
+                        status: 'available'
+                    },
+                    {
+                        id: '2',
+                        title: 'A Pál utcai fiúk',
+                        author: 'Molnár Ferenc',
+                        isbn: '9789631195842',
+                        publicationYear: '2010',
+                        publisher: 'Móra',
+                        category: 'children',
+                        pages: '208',
+                        language: 'Magyar',
+                        description: 'Klasszikus ifjúsági regény a barátságról és a becsületről.',
+                        status: 'available'
+                    },
+                    {
+                        id: '3',
+                        title: 'Sapiens: Az emberiség rövid története',
+                        author: 'Yuval Noah Harari',
+                        isbn: '9789633045848',
+                        publicationYear: '2018',
+                        publisher: 'Animus',
+                        category: 'science',
+                        pages: '416',
+                        language: 'Magyar',
+                        description: 'Az emberiség történetének átfogó bemutatása.',
+                        status: 'available'
+                    },
+                    {
+                        id: '4',
+                        title: 'Sorstalanság',
+                        author: 'Kertész Imre',
+                        isbn: '9789631422382',
+                        publicationYear: '2016',
+                        publisher: 'Magvető',
+                        category: 'fiction',
+                        pages: '288',
+                        language: 'Magyar',
+                        description: 'Nobel-díjas regény a holokauszt borzalmairól.',
+                        status: 'available'
+                    },
+                    {
+                        id: '5',
+                        title: 'A magyar nemzet története',
+                        author: 'Romsics Ignác',
+                        isbn: '9789630598675',
+                        publicationYear: '2017',
+                        publisher: 'Osiris',
+                        category: 'history',
+                        pages: '688',
+                        language: 'Magyar',
+                        description: 'Átfogó történelmi munka Magyarország múltjáról.',
+                        status: 'available'
+                    }
+                ];
+                
+                // Sample members
+                const sampleMembers = [
+                    {
+                        id: '1',
+                        firstName: 'Nagy',
+                        lastName: 'János',
+                        email: 'nagy.janos@example.com',
+                        phone: '+36201234567',
+                        address: 'Budapest, Kossuth utca 10.',
+                        birthDate: '1985-05-15',
+                        notes: '',
+                        registrationDate: '2023-01-10'
+                    },
+                    {
+                        id: '2',
+                        firstName: 'Kovács',
+                        lastName: 'Éva',
+                        email: 'kovacs.eva@example.com',
+                        phone: '+36301234567',
+                        address: 'Debrecen, Petőfi utca 5.',
+                        birthDate: '1990-08-22',
+                        notes: '',
+                        registrationDate: '2023-02-15'
+                    },
+                    {
+                        id: '3',
+                        firstName: 'Szabó',
+                        lastName: 'Péter',
+                        email: 'szabo.peter@example.com',
+                        phone: '+36701234567',
+                        address: 'Szeged, Arany János utca 8.',
+                        birthDate: '1978-11-30',
+                        notes: 'Rendszeres olvasó',
+                        registrationDate: '2023-03-05'
+                    }
+                ];
+                
+                // Sample checkouts
+                const today = new Date();
+                
+                const twoWeeksAgo = new Date();
+                twoWeeksAgo.setDate(today.getDate() - 14);
+                
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(today.getDate() - 7);
+                
+                const twoWeeksLater = new Date();
+                twoWeeksLater.setDate(today.getDate() + 14);
+                
+                const oneWeekLater = new Date();
+                oneWeekLater.setDate(today.getDate() + 7);
+                
+                const threeDaysAgo = new Date();
+                threeDaysAgo.setDate(today.getDate() - 3);
+                
+                const sampleCheckouts = [
+                    {
+                        id: '1',
+                        bookId: '1',
+                        memberId: '1',
+                        checkoutDate: twoWeeksAgo.toISOString().split('T')[0],
+                        dueDate: oneWeekLater.toISOString().split('T')[0],
+                        notes: '',
+                        returnDate: null
+                    },
+                    {
+                        id: '2',
+                        bookId: '3',
+                        memberId: '2',
+                        checkoutDate: oneWeekAgo.toISOString().split('T')[0],
+                        dueDate: twoWeeksLater.toISOString().split('T')[0],
+                        notes: '',
+                        returnDate: null
+                    },
+                    {
+                        id: '3',
+                        bookId: '5',
+                        memberId: '3',
+                        checkoutDate: threeDaysAgo.toISOString().split('T')[0],
+                        dueDate: threeDaysAgo.toISOString().split('T')[0],
+                        notes: 'Sürgős olvasmány',
+                        returnDate: null
+                    }
+                ];
+                
+                books = sampleBooks;
+                members = sampleMembers;
+                checkouts = sampleCheckouts;
+                
+                localStorage.setItem('books', JSON.stringify(books));
+                localStorage.setItem('members', JSON.stringify(members));
+                localStorage.setItem('checkouts', JSON.stringify(checkouts));
+                
+                updateStats();
+                updateUI();
+            }
+        });
+    </script>
+</body>
+</html>
